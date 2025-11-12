@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"time"
 )
@@ -16,8 +17,10 @@ func main() {
 		},
 	)
 
-	// simpleObjectReUse(&pool)
+	// Example 1:
+	simpleObjectReUse(pool)
 
+	// Example 2:
 	var wg sync.WaitGroup
 
 	for range 1000 {
@@ -35,6 +38,10 @@ func main() {
 	wg.Wait()
 
 	fmt.Printf("\n Number of allocations: %d\n", allocCount)
+
+	// Example 3:
+	log(os.Stdout, "debug-string-1")
+	log(os.Stdout, "debug-string-2")
 }
 
 func simpleObjectReUse[T ~[]E, E any](pool *TypedPool[T]) {

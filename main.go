@@ -3,18 +3,43 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 func main() {
+	allocCount := 0
 	pool := sync.Pool{
 		New: func() any {
-			fmt.Println("Allocating new byte slice")
+			allocCount++
+			fmt.Print(".")
 			return make([]byte, 1024) // 1kB
 		},
 	}
 
+	// simpleObjectReUse(&pool)
+
+	var wg sync.WaitGroup
+
+	for range 1000 {
+		wg.Add(1)
+		go func() {
+			obj := pool.Get().([]byte)
+			fmt.Print("-")
+			time.Sleep(100 * time.Millisecond)
+			pool.Put(obj)
+			wg.Done()
+		}()
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	wg.Wait()
+
+	fmt.Printf("\n Number of allocations: %d\n", allocCount)
+}
+
+func simpleObjectReUse(pool *sync.Pool) {
 	// Get a new obj from the pool
-	// This call will allocate since the pool is empty
+	// This call will allocate since the pool is initially empty
 	obj := pool.Get().([]byte)
 	fmt.Printf("Got object from pool, of length: %d\n", len(obj))
 

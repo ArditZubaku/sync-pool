@@ -19,7 +19,7 @@ func log(w io.Writer, val string) {
 	b := buffPool.Get()
 	b.Reset()
 
-	b.WriteString(time.Now().Format("15:04:05"))
+	b.Write(time.Now().AppendFormat(b.AvailableBuffer(), "15:04:05"))
 	b.WriteString(" : ")
 	b.WriteString(val)
 	w.Write(b.Bytes())

@@ -13,10 +13,10 @@ import (
 // goarch: amd64
 // pkg: github.com/ArditZubaku/go-sync-pool
 // cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
-// BenchmarkLogNoPool-12            6689988               183.2 ns/op            72 B/op          2 allocs/op
-// BenchmarkLogWithPool-12          7561688               155.2 ns/op             8 B/op          1 allocs/op
+// BenchmarkLogNoPool-14           12760836                93.24 ns/op           72 B/op          2 allocs/op
+// BenchmarkLogWithPool-14         16930678                70.34 ns/op            0 B/op          0 allocs/op
 // PASS
-// ok      github.com/ArditZubaku/go-sync-pool     2.405s
+// ok      github.com/ArditZubaku/go-sync-pool     2.575s
 
 func logNoPool(w io.Writer, val string) {
 	var b bytes.Buffer
@@ -36,7 +36,7 @@ func logWithPool(w io.Writer, val string) {
 	b := bufferPool.Get()
 	b.Reset()
 
-	b.WriteString(time.Now().Format("15:04:05"))
+	b.Write(time.Now().AppendFormat(b.AvailableBuffer(), "15:04:05"))
 	b.WriteString(" : ")
 	b.WriteString(val)
 	w.Write(b.Bytes())

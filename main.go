@@ -8,13 +8,13 @@ import (
 
 func main() {
 	allocCount := 0
-	pool := sync.Pool{
-		New: func() any {
+	pool := NewTypedPool(
+		func() []byte {
 			allocCount++
 			fmt.Print(".")
 			return make([]byte, 1024) // 1kB
 		},
-	}
+	)
 
 	// simpleObjectReUse(&pool)
 
@@ -23,7 +23,7 @@ func main() {
 	for range 1000 {
 		wg.Add(1)
 		go func() {
-			obj := pool.Get().([]byte)
+			obj := pool.Get()
 			fmt.Print("-")
 			time.Sleep(100 * time.Millisecond)
 			pool.Put(obj)
@@ -37,10 +37,10 @@ func main() {
 	fmt.Printf("\n Number of allocations: %d\n", allocCount)
 }
 
-func simpleObjectReUse(pool *sync.Pool) {
+func simpleObjectReUse[T ~[]E, E any](pool *TypedPool[T]) {
 	// Get a new obj from the pool
 	// This call will allocate since the pool is initially empty
-	obj := pool.Get().([]byte)
+	obj := pool.Get()
 	fmt.Printf("Got object from pool, of length: %d\n", len(obj))
 
 	// Put the object back in the pool
@@ -48,7 +48,7 @@ func simpleObjectReUse(pool *sync.Pool) {
 
 	// Get the object again
 	// This time it is reused from the pool
-	reusedObj := pool.Get().([]byte)
+	reusedObj := pool.Get()
 	fmt.Printf("Got reused object from pool, of length: %d\n", len(reusedObj))
 
 	// Put the object back in the pool
